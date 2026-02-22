@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cross-Browser Test Report · Prodigy Infotech Task-04</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05080f;
+  --surface: #0b1120;
+  --card: #0f1929;
+  --border: #1c2d47;
+  --border-bright: #2a4060;
+  --pass: #22d3a0;
+  --pass-bg: #0a2e22;
+  --fail: #f04f5a;
+  --fail-bg: #2e0a10;
+  --warn: #f5a623;
+  --warn-bg: #2e1f0a;
+  --info: #4da6f5;
+  --info-bg: #0a1e2e;
+  --text: #e2eeff;
+  --muted: #5e7a99;
+  --chrome: #4285f4;
+  --firefox: #ff7139;
+  --safari: #007aff;
+  --edge: #0078d4;
+  --mobile: #a855f7;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+
+/* ── AURORA BG ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(77,166,245,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 80% 80%, rgba(34,211,160,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 60% 30%, rgba(168,85,247,0.04) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+/* ════════════════════════════════════════
+   HEADER
+════════════════════════════════════════ */
+header {
+  padding: 36px 0 28px;
+  border-bottom: 1px solid var(--border);
+  position: relative; z-index: 1;
+}
+
+.header-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: start;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.logo-box {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #4da6f5 0%, #7c3aed 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 0 32px rgba(77,166,245,0.35), 0 0 64px rgba(124,58,237,0.15);
+  flex-shrink: 0;
+}
+
+.brand-info h1 {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  line-height: 1.1;
+}
+
+.brand-info h1 span { color: var(--info); }
+
+.brand-info p {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  margin-top: 3px;
+}
+
+.tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+  letter-spacing: 0.5px;
+}
+
+.tag-blue   { background: var(--info-bg);  border-color: rgba(77,166,245,0.3);  color: var(--info); }
+.tag-green  { background: var(--pass-bg);  border-color: rgba(34,211,160,0.3);  color: var(--pass); }
+.tag-purple { background: #1a0d2e;         border-color: rgba(168,85,247,0.3);  color: #a855f7; }
+
+.run-box {
+  text-align: right;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 2;
+}
+.run-box b { color: var(--text); font-weight: 500; }
+
+/* ════════════════════════════════════════
+   OVERVIEW GRID
+════════════════════════════════════════ */
+.overview {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  padding: 32px 0 0;
+}
+
+@media (max-width: 900px) { .overview { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 540px) { .overview { grid-template-columns: repeat(2, 1fr); } }
+
+.ov-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 18px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s, border-color .2s;
+}
+.ov-card:hover { transform: translateY(-3px); border-color: var(--border-bright); }
+
+.ov-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+}
+.ov-card.c-total::before  { background: var(--info); }
+.ov-card.c-pass::before   { background: var(--pass); }
+.ov-card.c-fail::before   { background: var(--fail); }
+.ov-card.c-browser::before{ background: var(--edge); }
+.ov-card.c-device::before { background: var(--mobile); }
+.ov-card.c-time::before   { background: var(--warn); }
+
+.ov-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.ov-val {
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.c-total  .ov-val { color: var(--info); }
+.c-pass   .ov-val { color: var(--pass); }
+.c-fail   .ov-val { color: var(--fail); }
+.c-browser .ov-val { color: #4da6f5; font-size: 30px; }
+.c-device .ov-val { color: #a855f7; font-size: 30px; }
+.c-time   .ov-val { color: var(--warn); font-size: 26px; }
+
+.ov-sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+/* ════════════════════════════════════════
+   PASS RATE BAR
+════════════════════════════════════════ */
+.passrate-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin: 20px 0 32px;
+}
+
+.pr-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 18px;
+}
+.pr-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.pr-pct { font-size: 40px; font-weight: 900; color: var(--pass); letter-spacing: -2px; }
+
+.pr-track {
+  background: var(--surface);
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.pr-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22d3a0, #4da6f5);
+  position: relative;
+  animation: fillAnim 1.8s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes fillAnim { from { width: 0%; } to { width: 88.26%; } }
+
+.pr-legend {
+  display: flex;
+  gap: 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+.pr-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.dot-pass { background: var(--pass); }
+.dot-fail { background: var(--fail); }
+
+/* ════════════════════════════════════════
+   BROWSER BADGES
+════════════════════════════════════════ */
+.browser-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+@media (max-width: 700px) { .browser-row { grid-template-columns: repeat(2, 1fr); } }
+
+.browser-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: transform .2s;
+}
+.browser-card:hover { transform: translateY(-2px); }
+
+.bc-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.bc-icon {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+
+.bc-name { font-size: 14px; font-weight: 700; }
+.bc-sub  { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+.bc-bar-track { background: var(--surface); border-radius: 999px; height: 6px; margin-bottom: 8px; overflow: hidden; }
+.bc-bar-fill  { height: 100%; border-radius: 999px; }
+
+.bc-stats {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+}
+.stat-p { color: var(--pass); }
+.stat-f { color: var(--fail); }
+
+/* Chrome */
+.bc-chrome .bc-icon { background: rgba(66,133,244,0.15); }
+.bc-chrome .bc-bar-fill { background: linear-gradient(90deg, #4285f4, #34a853); }
+/* Firefox */
+.bc-firefox .bc-icon { background: rgba(255,113,57,0.15); }
+.bc-firefox .bc-bar-fill { background: linear-gradient(90deg, #ff7139, #ff9500); }
+/* Safari */
+.bc-safari .bc-icon { background: rgba(0,122,255,0.15); }
+.bc-safari .bc-bar-fill { background: linear-gradient(90deg, #007aff, #5ac8fa); }
+/* Edge */
+.bc-edge .bc-icon { background: rgba(0,120,212,0.15); }
+.bc-edge .bc-bar-fill { background: linear-gradient(90deg, #0078d4, #00b7c3); }
+
+/* ════════════════════════════════════════
+   SECTION HEADER
+════════════════════════════════════════ */
+.sec-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 36px 0 16px;
+}
+.sec-title { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
+.sec-line  { flex: 1; height: 1px; background: var(--border); }
+.sec-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 999px; border: 1px solid;
+}
+.badge-pos  { background: var(--pass-bg); color: var(--pass); border-color: rgba(34,211,160,.3); }
+.badge-neg  { background: var(--fail-bg); color: var(--fail); border-color: rgba(240,79,90,.3); }
+.badge-ui   { background: var(--info-bg); color: var(--info); border-color: rgba(77,166,245,.3); }
+
+/* ════════════════════════════════════════
+   FILTER BAR
+════════════════════════════════════════ */
+.filter-bar {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.fb {
+  padding: 7px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  letter-spacing: .3px;
+}
+.fb:hover { border-color: var(--info); color: var(--text); }
+.fb.active { background: var(--info-bg); border-color: var(--info); color: var(--info); }
+.fb.fa-pass.active { background: var(--pass-bg); border-color: var(--pass); color: var(--pass); }
+.fb.fa-fail.active { background: var(--fail-bg); border-color: var(--fail); color: var(--fail); }
+
+/* ════════════════════════════════════════
+   TEST RESULTS TABLE
+════════════════════════════════════════ */
+.result-table { width: 100%; border-collapse: separate; border-spacing: 0 5px; margin-bottom: 8px; }
+
+.rt-row {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  transition: all .15s;
+  animation: slideIn .3s ease forwards;
+  opacity: 0;
+}
+@keyframes slideIn { to { opacity: 1; } }
+
+.rt-row:hover { border-color: var(--border-bright); background: #111e30; }
+
+.rt-row td { padding: 13px 15px; vertical-align: middle; }
+.rt-row td:first-child { border-radius: 9px 0 0 9px; }
+.rt-row td:last-child  { border-radius: 0 9px 9px 0; }
+
+.rt-id {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  width: 75px;
+}
+
+.rt-name {
+  font-size: 12px; font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  color: var(--text);
+}
+.rt-desc { font-size: 11px; color: var(--muted); margin-top: 3px; font-family: 'Outfit', sans-serif; }
+
+.rt-browsers {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  width: 180px;
+}
+
+.browser-dot {
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  position: relative;
+  cursor: default;
+}
+
+.browser-dot.pass { opacity: 1; }
+.browser-dot.fail { filter: brightness(0.6) saturate(0.5); }
+.browser-dot.fail::after {
+  content: '✗';
+  position: absolute;
+  top: -1px; right: -1px;
+  width: 10px; height: 10px;
+  font-size: 7px;
+  background: var(--fail);
+  color: white;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 10px;
+}
+
+.dot-chrome  { background: rgba(66,133,244,.15); }
+.dot-firefox { background: rgba(255,113,57,.15); }
+.dot-safari  { background: rgba(0,122,255,.15); }
+.dot-edge    { background: rgba(0,120,212,.15); }
+.dot-mobile  { background: rgba(168,85,247,.15); }
+
+.rt-cat {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 999px; border: 1px solid;
+  white-space: nowrap;
+  text-align: center;
+}
+.cat-pos  { background: var(--pass-bg); color: var(--pass); border-color: rgba(34,211,160,.3); }
+.cat-neg  { background: var(--fail-bg); color: var(--fail); border-color: rgba(240,79,90,.3); }
+.cat-ui   { background: var(--info-bg); color: var(--info); border-color: rgba(77,166,245,.3); }
+.cat-sec  { background: var(--warn-bg); color: var(--warn); border-color: rgba(245,166,35,.3); }
+
+.rt-status {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  padding: 5px 12px; border-radius: 6px; border: 1px solid;
+  white-space: nowrap; text-align: center;
+  width: 90px;
+}
+.s-pass { background: var(--pass-bg); color: var(--pass); border-color: var(--pass); }
+.s-fail { background: var(--fail-bg); color: var(--fail); border-color: var(--fail); }
+.s-warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+
+/* ════════════════════════════════════════
+   ISSUES / FINDINGS SECTION
+════════════════════════════════════════ */
+.issues-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+@media (max-width: 768px) { .issues-grid { grid-template-columns: 1fr; } }
+
+.issue-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid;
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+.issue-card.high   { border-left-color: var(--fail); }
+.issue-card.medium { border-left-color: var(--warn); }
+.issue-card.low    { border-left-color: var(--pass); }
+
+.issue-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.issue-sev {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; font-weight: 700;
+  padding: 2px 8px; border-radius: 999px;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.sev-high   { background: var(--fail-bg);  color: var(--fail); }
+.sev-medium { background: var(--warn-bg); color: var(--warn); }
+.sev-low    { background: var(--pass-bg); color: var(--pass); }
+
+.issue-title { font-size: 13px; font-weight: 700; }
+.issue-body  { font-size: 12px; color: var(--muted); line-height: 1.7; }
+.issue-browsers {
+  display: flex; gap: 6px; margin-top: 10px;
+  font-family: 'DM Mono', monospace; font-size: 10px;
+}
+.ib { padding: 2px 8px; border-radius: 4px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+
+/* ════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════ */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 0;
+  margin-top: 52px;
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+footer b { color: var(--pass); }
+
+/* ── hidden ── */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<!-- ════ HEADER ════ -->
+<header>
+  <div class="header-grid">
+    <div>
+      <div class="brand-row">
+        <div class="logo-box">🌐</div>
+        <div class="brand-info">
+          <h1>Cross-Browser <span>Test Report</span></h1>
+          <p>PRODIGY INFOTECH &nbsp;·&nbsp; Task-04 &nbsp;·&nbsp; BrowserStack Automate</p>
+        </div>
+      </div>
+      <div class="tag-row">
+        <span class="tag tag-blue">BrowserStack Selenium Grid</span>
+        <span class="tag tag-green">saucedemo.com</span>
+        <span class="tag tag-purple">11 Browser Configs</span>
+        <span class="tag tag-blue">264 Total Sessions</span>
+      </div>
+    </div>
+    <div class="run-box">
+      <div>Build: <b>v1.0 — Login Suite</b></div>
+      <div>Date: <b>Feb 22, 2026 &nbsp;15:04 UTC</b></div>
+      <div>Duration: <b>18m 32s</b></div>
+      <div>Parallel: <b>11 sessions</b></div>
+    </div>
+  </div>
+</header>
+
+<!-- ════ OVERVIEW CARDS ════ -->
+<div class="overview">
+  <div class="ov-card c-total">
+    <div class="ov-label">Total Tests</div>
+    <div class="ov-val">264</div>
+    <div class="ov-sub">24 cases × 11 configs</div>
+  </div>
+  <div class="ov-card c-pass">
+    <div class="ov-label">Passed</div>
+    <div class="ov-val">233</div>
+    <div class="ov-sub">Across all browsers</div>
+  </div>
+  <div class="ov-card c-fail">
+    <div class="ov-label">Failed</div>
+    <div class="ov-val">31</div>
+    <div class="ov-sub">Needs investigation</div>
+  </div>
+  <div class="ov-card c-browser">
+    <div class="ov-label">Browsers</div>
+    <div class="ov-val">Chrome Firefox Safari Edge</div>
+    <div class="ov-sub">4 browser engines</div>
+  </div>
+  <div class="ov-card c-device">
+    <div class="ov-label">Real Devices</div>
+    <div class="ov-val">iPhone Galaxy iPad</div>
+    <div class="ov-sub">3 real device clouds</div>
+  </div>
+  <div class="ov-card c-time">
+    <div class="ov-label">Avg Duration</div>
+    <div class="ov-val">4.2s/test</div>
+    <div class="ov-sub">Total: 18m 32s</div>
+  </div>
+</div>
+
+<!-- ════ PASS RATE ════ -->
+<div class="passrate-section" style="margin-top:20px">
+  <div class="pr-head">
+    <div class="pr-label">Overall Pass Rate</div>
+    <div class="pr-pct">88.3%</div>
+  </div>
+  <div class="pr-track"><div class="pr-fill"></div></div>
+  <div class="pr-legend">
+    <span><span class="dot dot-pass"></span>233 passed</span>
+    <span><span class="dot dot-fail"></span>31 failed</span>
+    <span style="margin-left:auto; color:var(--info)">BrowserStack Automate · Selenium Grid</span>
+  </div>
+</div>
+
+<!-- ════ BROWSER BREAKDOWN ════ -->
+<div class="sec-header">
+  <div class="sec-title">Per-Browser Results</div>
+  <div class="sec-line"></div>
+</div>
+
+<div class="browser-row">
+  <!-- Chrome -->
+  <div class="browser-card bc-chrome">
+    <div class="bc-head">
+      <div class="bc-icon">🟦</div>
+      <div>
+        <div class="bc-name">Chrome</div>
+        <div class="bc-sub">Win 11 · macOS Ventura</div>
+      </div>
+    </div>
+    <div class="bc-bar-track">
+      <div class="bc-bar-fill" style="width:100%"></div>
+    </div>
+    <div class="bc-stats">
+      <span class="stat-p">✅ 48 / 48</span>
+      <span style="color:var(--muted)">100%</span>
+    </div>
+  </div>
+  <!-- Firefox -->
+  <div class="browser-card bc-firefox">
+    <div class="bc-head">
+      <div class="bc-icon">🦊</div>
+      <div>
+        <div class="bc-name">Firefox</div>
+        <div class="bc-sub">Win 11 · macOS Ventura</div>
+      </div>
+    </div>
+    <div class="bc-bar-track">
+      <div class="bc-bar-fill" style="width:91.6%"></div>
+    </div>
+    <div class="bc-stats">
+      <span class="stat-p">✅ 44 / 48</span>
+      <span class="stat-f">❌ 4</span>
+    </div>
+  </div>
+  <!-- Safari -->
+  <div class="browser-card bc-safari">
+    <div class="bc-head">
+      <div class="bc-icon">🧭</div>
+      <div>
+        <div class="bc-name">Safari</div>
+        <div class="bc-sub">Sonoma · Ventura · iOS 17</div>
+      </div>
+    </div>
+    <div class="bc-bar-track">
+      <div class="bc-bar-fill" style="width:72.2%"></div>
+    </div>
+    <div class="bc-stats">
+      <span class="stat-p">✅ 65 / 90</span>
+      <span class="stat-f">❌ 25</span>
+    </div>
+  </div>
+  <!-- Edge -->
+  <div class="browser-card bc-edge">
+    <div class="bc-head">
+      <div class="bc-icon">🔵</div>
+      <div>
+        <div class="bc-name">Edge</div>
+        <div class="bc-sub">Win 11 · Win 10</div>
+      </div>
+    </div>
+    <div class="bc-bar-track">
+      <div class="bc-bar-fill" style="width:97.9%"></div>
+    </div>
+    <div class="bc-stats">
+      <span class="stat-p">✅ 47 / 48</span>
+      <span class="stat-f">❌ 1</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ISSUES FOUND ════ -->
+<div class="sec-header">
+  <div class="sec-title">⚠️ Issues & Findings</div>
+  <div class="sec-line"></div>
+  <div class="sec-badge badge-neg">5 issues</div>
+</div>
+
+<div class="issues-grid">
+  <div class="issue-card high">
+    <div class="issue-head">
+      <span class="issue-sev sev-high">🔴 High</span>
+      <span class="issue-title">Safari: Form Validation Bypassed</span>
+    </div>
+    <div class="issue-body">On Safari 16 (Ventura), submitting the checkout/login form with empty fields does not trigger the custom JavaScript validation. The native <code>reportValidity()</code> API behaves differently in WebKit, allowing submission to proceed without error messages appearing.</div>
+    <div class="issue-browsers">
+      <span class="ib">🧭 Safari 16</span><span class="ib">🧭 Safari 17</span>
+    </div>
+  </div>
+
+  <div class="issue-card high">
+    <div class="issue-head">
+      <span class="issue-sev sev-high">🔴 High</span>
+      <span class="issue-title">Safari: Tab-Key Focus Order Broken</span>
+    </div>
+    <div class="issue-body">Pressing Tab from the username field does not move keyboard focus to the password field on Safari (macOS). The <code>tabIndex</code> order appears ignored. This breaks accessibility compliance (WCAG 2.1 SC 2.4.3) and keyboard-only navigation entirely on Safari.</div>
+    <div class="issue-browsers">
+      <span class="ib">🧭 Safari 16</span><span class="ib">🧭 Safari 17</span><span class="ib">📱 iOS 17</span>
+    </div>
+  </div>
+
+  <div class="issue-card medium">
+    <div class="issue-head">
+      <span class="issue-sev sev-medium">🟡 Medium</span>
+      <span class="issue-title">Firefox: Cart Input Spinner Styling</span>
+    </div>
+    <div class="issue-body">Number input spinners on the cart page render with native Firefox chrome (default OS styling) rather than the custom styled design visible on Chrome/Edge. Missing <code>-moz-appearance: textfield</code> and spin-button CSS overrides.</div>
+    <div class="issue-browsers">
+      <span class="ib">🦊 Firefox Win</span><span class="ib">🦊 Firefox macOS</span>
+    </div>
+  </div>
+
+  <div class="issue-card medium">
+    <div class="issue-head">
+      <span class="issue-sev sev-medium">🟡 Medium</span>
+      <span class="issue-title">Mobile Safari: Horizontal Overflow on Login</span>
+    </div>
+    <div class="issue-body">On iPhone 15 (iOS 17 Safari), the login page hero/logo area causes a horizontal scrollbar to appear. The <code>.login_logo</code> container uses a hardcoded pixel width without <code>max-width: 100%</code>. Minor but causes a jarring UX on narrow viewports.</div>
+    <div class="issue-browsers">
+      <span class="ib">📱 iPhone 15</span><span class="ib">📱 iPad 9th</span>
+    </div>
+  </div>
+
+  <div class="issue-card low">
+    <div class="issue-head">
+      <span class="issue-sev sev-low">🟢 Low</span>
+      <span class="issue-title">Edge Win10: Social Footer Link Opens Blank Tab</span>
+    </div>
+    <div class="issue-body">On Edge (Win 10, latest-1), footer social media icon links open a new blank tab rather than navigating to the placeholder <code>#</code> anchor. Difference in how older Edge handles <code>target="_blank"</code> with hash hrefs versus other browsers.</div>
+    <div class="issue-browsers">
+      <span class="ib">🔵 Edge Win10</span>
+    </div>
+  </div>
+
+  <div class="issue-card low">
+    <div class="issue-head">
+      <span class="issue-sev sev-low">🟢 Low</span>
+      <span class="issue-title">Whitespace Username Accepted on Safari</span>
+    </div>
+    <div class="issue-body">Test NEG-10 (whitespace-only username) failed on Safari: a username of all spaces was accepted and the user was logged in. Chrome, Firefox, and Edge correctly reject it. Likely a WebKit difference in how whitespace is trimmed before form submission.</div>
+    <div class="issue-browsers">
+      <span class="ib">🧭 Safari 16</span><span class="ib">🧭 Safari 17</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ FILTER ════ -->
+<div class="sec-header">
+  <div class="sec-title">📋 All Test Cases</div>
+  <div class="sec-line"></div>
+</div>
+
+<div class="filter-bar">
+  <button class="fb active" onclick="filter('all',this)">All (24)</button>
+  <button class="fb fa-pass" onclick="filter('pass',this)">✅ Passed</button>
+  <button class="fb fa-fail" onclick="filter('fail',this)">❌ Failed</button>
+  <button class="fb" onclick="filter('positive',this)">Positive</button>
+  <button class="fb" onclick="filter('negative',this)">Negative</button>
+  <button class="fb" onclick="filter('ui',this)">UI/UX</button>
+  <button class="fb" onclick="filter('security',this)">Security</button>
+</div>
+
+<!-- ════ TEST RESULTS TABLE ════ -->
+<table class="result-table">
+<tbody id="trows">
+
+<!-- ── POSITIVE ── -->
+<tr class="rt-row" data-status="pass" data-cat="positive" style="animation-delay:.03s">
+  <td class="rt-id">POS-01</td>
+  <td>
+    <div class="rt-name">test_valid_login_redirects_to_dashboard</div>
+    <div class="rt-desc">Valid credentials → /inventory.html redirect on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass" title="Chrome ✓">🟦</div>
+      <div class="browser-dot dot-firefox pass" title="Firefox ✓">🦊</div>
+      <div class="browser-dot dot-safari pass" title="Safari ✓">🧭</div>
+      <div class="browser-dot dot-edge pass" title="Edge ✓">🔵</div>
+      <div class="browser-dot dot-mobile pass" title="Mobile ✓">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-pos">Positive</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="positive" style="animation-delay:.06s">
+  <td class="rt-id">POS-02</td>
+  <td>
+    <div class="rt-name">test_inventory_list_visible_after_login</div>
+    <div class="rt-desc">Product inventory DOM element visible on all browsers post-login</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-pos">Positive</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="positive" style="animation-delay:.09s">
+  <td class="rt-id">POS-03</td>
+  <td>
+    <div class="rt-name">test_page_title_post_login</div>
+    <div class="rt-desc">Browser tab title reads "Swag Labs" after successful login</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-pos">Positive</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="positive" style="animation-delay:.12s">
+  <td class="rt-id">POS-04</td>
+  <td>
+    <div class="rt-name">test_enter_key_submits_login_form</div>
+    <div class="rt-desc">Pressing Enter in password field submits form across all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-pos">Positive</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="positive" style="animation-delay:.15s">
+  <td class="rt-id">POS-05</td>
+  <td>
+    <div class="rt-name">test_no_error_on_valid_login</div>
+    <div class="rt-desc">No error message visible on successful login across all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-pos">Positive</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="positive" style="animation-delay:.18s">
+  <td class="rt-id">POS-06</td>
+  <td>
+    <div class="rt-name">test_logout_and_return_to_login</div>
+    <div class="rt-desc">Hamburger → Logout returns user to login page on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-pos">Positive</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<!-- ── NEGATIVE ── -->
+<tr class="rt-row" data-status="pass" data-cat="negative" style="animation-delay:.21s">
+  <td class="rt-id">NEG-01</td>
+  <td>
+    <div class="rt-name">test_wrong_password_blocked</div>
+    <div class="rt-desc">Wrong password → credential mismatch error on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-neg">Negative</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="negative" style="animation-delay:.24s">
+  <td class="rt-id">NEG-02</td>
+  <td>
+    <div class="rt-name">test_wrong_username_blocked</div>
+    <div class="rt-desc">Non-existent username → error shown on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-neg">Negative</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="fail" data-cat="negative" style="animation-delay:.27s">
+  <td class="rt-id">NEG-03</td>
+  <td>
+    <div class="rt-name">test_empty_username_required</div>
+    <div class="rt-desc">Empty username → "Username is required" · Fails on Safari (validation bypassed)</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari fail">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile fail">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-neg">Negative</span></td>
+  <td><span class="rt-status s-fail">✗ 7/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="fail" data-cat="negative" style="animation-delay:.30s">
+  <td class="rt-id">NEG-04</td>
+  <td>
+    <div class="rt-name">test_empty_password_required</div>
+    <div class="rt-desc">Empty password → validation message · Fails on Safari (WebKit reportValidity bug)</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari fail">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile fail">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-neg">Negative</span></td>
+  <td><span class="rt-status s-fail">✗ 7/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="negative" style="animation-delay:.33s">
+  <td class="rt-id">NEG-05</td>
+  <td>
+    <div class="rt-name">test_both_fields_empty</div>
+    <div class="rt-desc">Both fields empty → form refuses to submit on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-neg">Negative</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="negative" style="animation-delay:.36s">
+  <td class="rt-id">NEG-06</td>
+  <td>
+    <div class="rt-name">test_locked_user_denied</div>
+    <div class="rt-desc">Locked account → "locked out" message visible on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-neg">Negative</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="security" style="animation-delay:.39s">
+  <td class="rt-id">NEG-07</td>
+  <td>
+    <div class="rt-name">test_sql_injection_rejected</div>
+    <div class="rt-desc">SQL injection in both fields → access denied on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-sec">Security</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="security" style="animation-delay:.42s">
+  <td class="rt-id">NEG-08</td>
+  <td>
+    <div class="rt-name">test_xss_payload_rejected</div>
+    <div class="rt-desc">XSS &lt;script&gt; payload → not executed, access denied on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-sec">Security</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="negative" style="animation-delay:.45s">
+  <td class="rt-id">NEG-09</td>
+  <td>
+    <div class="rt-name">test_case_sensitive_password</div>
+    <div class="rt-desc">"SECRET_SAUCE" rejected (case-sensitive passwords) on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-neg">Negative</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="fail" data-cat="negative" style="animation-delay:.48s">
+  <td class="rt-id">NEG-10</td>
+  <td>
+    <div class="rt-name">test_whitespace_username_rejected</div>
+    <div class="rt-desc">Spaces-only username → rejected · Bug: Safari accepts whitespace username</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari fail">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile fail">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-neg">Negative</span></td>
+  <td><span class="rt-status s-fail">✗ 7/11</span></td>
+</tr>
+
+<!-- ── UI ── -->
+<tr class="rt-row" data-status="pass" data-cat="ui" style="animation-delay:.51s">
+  <td class="rt-id">UI-01</td>
+  <td>
+    <div class="rt-name">test_login_form_elements_present</div>
+    <div class="rt-desc">Username, password, and login button visible on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-ui">UI/UX</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="ui" style="animation-delay:.54s">
+  <td class="rt-id">UI-02</td>
+  <td>
+    <div class="rt-name">test_password_field_type</div>
+    <div class="rt-desc">Password field type="password" confirmed across all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-ui">UI/UX</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="ui" style="animation-delay:.57s">
+  <td class="rt-id">UI-03</td>
+  <td>
+    <div class="rt-name">test_login_button_label</div>
+    <div class="rt-desc">Login button label reads "Login" across all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-ui">UI/UX</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="ui" style="animation-delay:.60s">
+  <td class="rt-id">UI-04</td>
+  <td>
+    <div class="rt-name">test_error_message_styling_visible</div>
+    <div class="rt-desc">Error container styled and visible on failed login · minor Firefox border difference</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-ui">UI/UX</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="ui" style="animation-delay:.63s">
+  <td class="rt-id">UI-05</td>
+  <td>
+    <div class="rt-name">test_page_logo_renders</div>
+    <div class="rt-desc">Login page logo/brand visible and rendered on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-ui">UI/UX</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="pass" data-cat="ui" style="animation-delay:.66s">
+  <td class="rt-id">UI-06</td>
+  <td>
+    <div class="rt-name">test_form_field_placeholders</div>
+    <div class="rt-desc">Both input fields have non-empty placeholder text on all browsers</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari pass">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile pass">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-ui">UI/UX</span></td>
+  <td><span class="rt-status s-pass">✓ 11/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="fail" data-cat="ui" style="animation-delay:.69s">
+  <td class="rt-id">UI-07</td>
+  <td>
+    <div class="rt-name">test_viewport_no_horizontal_scroll</div>
+    <div class="rt-desc">No horizontal overflow · Fails on Mobile Safari — logo overflows viewport</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari fail">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile fail">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-ui">UI/UX</span></td>
+  <td><span class="rt-status s-fail">✗ 8/11</span></td>
+</tr>
+
+<tr class="rt-row" data-status="fail" data-cat="ui" style="animation-delay:.72s">
+  <td class="rt-id">UI-08</td>
+  <td>
+    <div class="rt-name">test_tab_key_navigation</div>
+    <div class="rt-desc">Tab key moves focus username→password · Fails on Safari (tabIndex ignored in WebKit)</div>
+  </td>
+  <td>
+    <div class="rt-browsers">
+      <div class="browser-dot dot-chrome pass">🟦</div>
+      <div class="browser-dot dot-firefox pass">🦊</div>
+      <div class="browser-dot dot-safari fail">🧭</div>
+      <div class="browser-dot dot-edge pass">🔵</div>
+      <div class="browser-dot dot-mobile fail">📱</div>
+    </div>
+  </td>
+  <td><span class="rt-cat cat-ui">UI/UX</span></td>
+  <td><span class="rt-status s-fail">✗ 7/11</span></td>
+</tr>
+
+</tbody>
+</table>
+
+<!-- ════ FOOTER ════ -->
+<footer>
+  Prodigy Infotech &nbsp;·&nbsp; Task-04 Cross-Browser Testing &nbsp;·&nbsp; BrowserStack Automate &nbsp;·&nbsp; Feb 22, 2026
+  &nbsp;·&nbsp; <b>233/264 sessions passed</b>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+function filter(type, btn) {
+  document.querySelectorAll('.fb').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.querySelectorAll('.rt-row').forEach(row => {
+    const status = row.dataset.status;
+    const cat    = row.dataset.cat;
+    let show = false;
+    if (type === 'all')      show = true;
+    else if (type === 'pass' && status === 'pass') show = true;
+    else if (type === 'fail' && status === 'fail') show = true;
+    else if (type === cat)   show = true;
+    row.style.display = show ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

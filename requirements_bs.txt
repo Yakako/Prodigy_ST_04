@@ -1,0 +1,25 @@
+# ─────────────────────────────────────────────────────────────
+#  PRODIGY INFOTECH — Task-04: BrowserStack Cross-Browser Suite
+#  Python Dependencies
+# ─────────────────────────────────────────────────────────────
+
+# Core test runner
+pytest>=7.4.0
+
+# Selenium WebDriver (W3C remote protocol for BrowserStack)
+selenium>=4.15.0
+
+# Parallel test execution across browser sessions
+pytest-xdist>=3.3.1
+
+# HTML report generation
+pytest-html>=4.0.0
+
+# Retry flaky tests (useful for real-device cloud latency)
+pytest-rerunfailures>=12.0
+
+# BrowserStack SDK (optional — auto-injects capabilities)
+browserstack-sdk>=1.17.0
+
+# Timeout support
+pytest-timeout>=2.2.0

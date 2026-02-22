@@ -1,0 +1,99 @@
+# ============================================================
+#  BrowserStack Automation Configuration
+#  PRODIGY INFOTECH — Task-04: Cross-Browser Testing
+#  Target: https://www.saucedemo.com
+# ============================================================
+
+# BrowserStack credentials (set via environment variables)
+userName: ${BROWSERSTACK_USERNAME}
+accessKey: ${BROWSERSTACK_ACCESS_KEY}
+
+# ── Project Metadata ─────────────────────────────────────────
+projectName: "Prodigy Infotech — Task-04 Cross-Browser Login Tests"
+buildName: "Build 1.0 — SauceDemo Login Suite"
+sessionName: "Cross-Browser Login & Form Tests"
+
+# ── Target URL ───────────────────────────────────────────────
+# Site under test: SauceDemo (public demo e-commerce)
+
+# ── Browser & Device Matrix ──────────────────────────────────
+browsers:
+  # ── DESKTOP BROWSERS ────────────────────────────────────────
+  - browser: chrome
+    browser_version: latest
+    os: Windows
+    os_version: 11
+
+  - browser: chrome
+    browser_version: latest-1
+    os: OS X
+    os_version: Ventura
+
+  - browser: firefox
+    browser_version: latest
+    os: Windows
+    os_version: 11
+
+  - browser: firefox
+    browser_version: latest-1
+    os: OS X
+    os_version: Ventura
+
+  - browser: edge
+    browser_version: latest
+    os: Windows
+    os_version: 11
+
+  - browser: edge
+    browser_version: latest-1
+    os: Windows
+    os_version: 10
+
+  - browser: safari
+    browser_version: 17.0
+    os: OS X
+    os_version: Sonoma
+
+  - browser: safari
+    browser_version: 16.0
+    os: OS X
+    os_version: Ventura
+
+  # ── MOBILE DEVICES (Real Device Cloud) ──────────────────────
+  - device: "iPhone 15"
+    os_version: "17"
+    browser: safari
+    real_mobile: true
+
+  - device: "Samsung Galaxy S23"
+    os_version: "13.0"
+    browser: chrome
+    real_mobile: true
+
+  - device: "iPad 9th"
+    os_version: "15"
+    browser: safari
+    real_mobile: true
+
+# ── Test Settings ─────────────────────────────────────────────
+framework: pytest
+testSuite: tests/
+
+# ── Reporting ─────────────────────────────────────────────────
+report:
+  enable: true
+  type: junit
+
+# ── Network & Debug Options ───────────────────────────────────
+networkLogs: true
+consoleLogs: verbose
+seleniumLogs: true
+video: true
+screenshots: true
+
+# ── Parallelism ───────────────────────────────────────────────
+parallelsPerPlatform: 2
+
+# ── Timeouts ──────────────────────────────────────────────────
+idleTimeout: 90
+waitForTimeout: 10000
